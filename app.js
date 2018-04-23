@@ -218,12 +218,13 @@ app.post("/twofactor/setup/deactivate", function(req, res){
     verifyUser(req.body.idToken)
     .then((user) => {
         deactivateSecretKey(user.uid);
-        var message = "DELETED_2FA"
-        res.status("200").send(message);
+        return res.json({
+            message: "DELETED_2FA"
+        });
     })
     .catch((error) => {
         console.log(error);
-        res.status("400").send(error);
+        res.status(400).send(error);
     });
 });
 
@@ -233,9 +234,10 @@ app.post("/twofactor/setup/verify", function(req, res){
     verifyUser(req.body.idToken)
     .then((user) => {
         verifySecret(req.body.otp, user.uid)
-        .then((message) => {
-            console.log(message);
-            return res.status(200).sendStatus(message);
+        .then((response) => {
+            return res.json({
+                message: response
+            });
         })
         .catch((error) => {
             console.log(error);
@@ -256,7 +258,9 @@ app.post("/twofactor/verify" , function(req, res){
         verifyOTP(user.uid, req.body.otp)
         .then((response) => {
             console.log("207");
-            return res.status(200).send(response);
+            return res.json({
+                message: response
+            });
         })
         .catch((error) => {
             console.log(error);

@@ -1,0 +1,29 @@
+{
+  "name": "pas-btcwallet-web",
+  "version": "1.0.0",
+  "description": "BackEnd for 2AUF",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/synergyvision/pas-btcwallet-web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/synergyvision/pas-btcwallet-web/issues"
+  },
+  "homepage": "https://github.com/synergyvision/pas-btcwallet-web#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "firebase": "^4.12.1",
+    "firebase-admin": "^5.12.0",
+    "nodemailer": "^4.6.4",
+    "nodemailer-express-handlebars": "^3.0.0",
+    "qrcode": "^1.2.0",
+    "speakeasy": "^2.0.0"
+  }
+}

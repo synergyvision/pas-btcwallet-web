@@ -9,6 +9,7 @@ Server for 2FA. Does CRUD operations on Firebase RealTime Database related to 2 
 
 const express = require("express");
 var app = express();
+var constants = require("./const");
 const bodyParser = require("body-parser");
 var speakeasy = require("speakeasy");
 var QRCode = require("qrcode");
@@ -21,7 +22,7 @@ var serviceAccount = require("./serviceAccountKey.json");
 const mailTransport = nodemailer.createTransport({
   service: "gmail",
 // we set up here the email account
-
+  auth: constants.auth,
 });
 
 // Server Settings
@@ -117,7 +118,8 @@ var verifySecret = function(otp, uid) {
             var verified = speakeasy.totp.verify({
                 secret: token.tempSecret, // Secret of the logged in user
                 encoding: "base32",
-                token: otp
+                token: otp,
+                window: 3
             });
             if (verified) {
                 console.log("107");
@@ -142,21 +144,24 @@ var verifySecret = function(otp, uid) {
 // Verifies the OTP is valid, then gives permission to the user on the APP
 
 var verifyOTP = function(uid, otp) {
-    getSecretKey(uid)
-    .then((user) => {
-        var verified = speakeasy.totp.verify({
-            secret: user.secret,
-            encoding: "base32",
-            token: otp,
-            window: 2
+    return new Promise((resolve, reject) => {
+        getSecretKey(uid)
+        .then((user) => {
+            var verified = speakeasy.totp.verify({
+                secret: user.secret,
+                encoding: "base32",
+                token: otp,
+                window: 2
+            });
+            if (verified){
+                console.log('OTP verified');
+                resolve("SUCCESS");
+            }
+            reject("ERROR.2FA.invalid_otp");
+        })
+        .catch((error) => {
+            reject(error);
         });
-        if (verified){
-            return "SUCCESS";
-        }
-        return "ERROR.2FA.invalid_otp";
-    })
-    .catch((error) => {
-        return error;
     });
 }
 
@@ -253,6 +258,7 @@ app.post("/twofactor/setup/verify", function(req, res){
 // Verifies an OTP
 
 app.post("/twofactor/verify" , function(req, res){
+    console.log('here');
     verifyUser(req.body.idToken)
     .then((user) => {
         verifyOTP(user.uid, req.body.otp)
@@ -263,11 +269,13 @@ app.post("/twofactor/verify" , function(req, res){
             });
         })
         .catch((error) => {
+            console.log('ERROR Verifying token');
             console.log(error);
             return res.status(400).send(error);
         });
     })
     .catch((error) => {
+        console.log('ERROR Verifying user');
         return res.status(400).send(error);
     });
 });
